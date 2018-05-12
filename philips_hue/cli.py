@@ -15,6 +15,7 @@ from pygments.formatters import Terminal256Formatter
 from pygments.lexers import Python3Lexer
 from pygments.styles import get_style_by_name
 import qhue
+import requests
 
 
 class PrettyPrinter:
@@ -29,11 +30,17 @@ class PrettyPrinter:
         print(self.pformat(s))
 
 
+PP = PrettyPrinter(style='friendly')
+
+
 def sgr(*args):
     return '\033[{}m'.format(';'.join(str(i) for i in args))
 
 
 def setup(config):
+    resp = requests.get('https://www.meethue.com/api/nupnp')
+    print('Detected Philips Hue Bridges:')
+    PP.pprint(resp.json())
     location = prompt('Enter the Bridge IP address: ')
     username = qhue.create_new_username(location)
     cp = configparser.ConfigParser()
@@ -75,7 +82,6 @@ def main():
         break
 
     b = qhue.Bridge(bridge_location, bridge_username)
-    pp = PrettyPrinter(style='friendly')
     history = FileHistory('philipshue.hist')
     while True:
         try:
@@ -85,7 +91,7 @@ def main():
             start = time.perf_counter()
             out = exec_cmd(cmd, bridge=b)
             time_taken = time.perf_counter() - start
-            pp.pprint(out)
+            PP.pprint(out)
             print(f'Time taken: {sgr(1, 34)}{time_taken*1000:.3f} ms{sgr(0)}')
         except (SyntaxError, qhue.QhueException) as err:
             print(f'{sgr(1, 31)}{err.__class__.__name__}{sgr(0)}: {err}')
