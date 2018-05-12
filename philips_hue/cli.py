@@ -6,21 +6,24 @@ import pprint
 import time
 
 from prompt_toolkit import prompt
-from prompt_toolkit.history import InMemoryHistory
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.layout.lexers import PygmentsLexer
+from prompt_toolkit.styles import style_from_pygments
 from pygments import highlight
-from pygments.lexers import Python3Lexer
 from pygments.formatters import Terminal256Formatter
+from pygments.lexers import Python3Lexer
+from pygments.styles import get_style_by_name
 import qhue
 
 
 class PrettyPrinter:
     def __init__(self, style='default'):
-        self.lexer = Python3Lexer()
         self.fmtr = Terminal256Formatter(style=style)
 
     def pformat(self, s):
         pp = pprint.pformat(s)
-        return highlight(pp, self.lexer, self.fmtr)
+        return highlight(pp, Python3Lexer(), self.fmtr)
 
     def pprint(self, s):
         print(self.pformat(s))
@@ -72,11 +75,13 @@ def main():
         break
 
     b = qhue.Bridge(bridge_location, bridge_username)
-    pp = PrettyPrinter()
-    history = InMemoryHistory()
+    pp = PrettyPrinter(style='friendly')
+    history = FileHistory('philipshue.hist')
     while True:
         try:
-            cmd = prompt('> ', history=history)
+            cmd = prompt('> ', lexer=PygmentsLexer(Python3Lexer),
+                         style=style_from_pygments(get_style_by_name('friendly')),
+                         history=history, auto_suggest=AutoSuggestFromHistory())
             start = time.perf_counter()
             out = exec_cmd(cmd, bridge=b)
             time_taken = time.perf_counter() - start
