@@ -4,6 +4,7 @@ import argparse
 import configparser
 from pathlib import Path
 import pprint
+import sys
 import time
 
 from prompt_toolkit import prompt
@@ -19,7 +20,11 @@ import qhue
 import requests
 
 
-HOME = Path.home()
+try:
+    from IPython.core import ultratb
+    sys.excepthook = ultratb.FormattedTB()
+except ImportError:
+    pass
 
 
 class PrettyPrinter:
@@ -31,7 +36,7 @@ class PrettyPrinter:
         return highlight(pp, Python3Lexer(), self.fmtr)
 
     def pprint(self, s):
-        print(self.pformat(s))
+        print(self.pformat(s), end='')
 
 
 PP = PrettyPrinter(style='friendly')
@@ -69,7 +74,7 @@ def exec_cmd(cmd, bridge):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--config', default=str(HOME / '.philipshue.ini'),
+    ap.add_argument('--config', default=str(Path.home() / '.philipshue.ini'),
                     help='the config file location')
     args = ap.parse_args()
 
@@ -86,7 +91,7 @@ def main():
         break
 
     b = qhue.Bridge(bridge_location, bridge_username)
-    history = FileHistory(HOME / '.philipshue.hist')
+    history = FileHistory(Path.home() / '.philipshue.hist')
     while True:
         try:
             cmd = prompt('> ', lexer=PygmentsLexer(Python3Lexer),
