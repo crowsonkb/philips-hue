@@ -94,7 +94,7 @@ def main():
     history = FileHistory(Path.home() / '.philipshue.hist')
     while True:
         try:
-            cmd = prompt('> ', lexer=PygmentsLexer(Python3Lexer),
+            cmd = prompt('>>> ', lexer=PygmentsLexer(Python3Lexer),
                          style=style_from_pygments(get_style_by_name('friendly')),
                          history=history, auto_suggest=AutoSuggestFromHistory())
             start = time.perf_counter()
