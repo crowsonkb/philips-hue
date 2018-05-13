@@ -15,9 +15,10 @@ from prompt_toolkit.styles import style_from_pygments
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import Python3Lexer
-from pygments.styles import get_style_by_name
 import qhue
 import requests
+
+from philips_hue.friendly_mod import FriendlyStyle
 
 
 try:
@@ -38,8 +39,7 @@ class PrettyPrinter:
     def pprint(self, s):
         print(self.pformat(s), end='')
 
-
-PP = PrettyPrinter(style='friendly')
+PP = PrettyPrinter(style=FriendlyStyle)
 
 
 def sgr(*args):
@@ -95,7 +95,7 @@ def main():
     while True:
         try:
             cmd = prompt('>>> ', lexer=PygmentsLexer(Python3Lexer),
-                         style=style_from_pygments(get_style_by_name('friendly')),
+                         style=style_from_pygments(FriendlyStyle),
                          history=history, auto_suggest=AutoSuggestFromHistory())
             start = time.perf_counter()
             out = exec_cmd(cmd, bridge=b)
