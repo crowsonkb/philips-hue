@@ -1,8 +1,11 @@
+from pathlib import Path
+
 from setuptools import setup
 
 setup(name='philips-hue',
       version='0.1',
       description='A CLI tool to interface with Philips Hue lights.',
+      long_description=(Path(__name__).resolve().parent / 'README.rst').read_text(),
       url='http://github.com/crowsonkb/philips-hue',
       author='Katherine Crowson',
       author_email='crowsonkb@gmail.com',
