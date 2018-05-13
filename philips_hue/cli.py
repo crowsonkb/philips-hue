@@ -2,6 +2,7 @@
 
 import argparse
 import configparser
+from pathlib import Path
 import pprint
 import time
 
@@ -16,6 +17,9 @@ from pygments.lexers import Python3Lexer
 from pygments.styles import get_style_by_name
 import qhue
 import requests
+
+
+HOME = Path.home()
 
 
 class PrettyPrinter:
@@ -65,7 +69,7 @@ def exec_cmd(cmd, bridge):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--config', default='philipshue.ini',
+    ap.add_argument('--config', default=str(HOME / '.philipshue.ini'),
                     help='the config file location')
     args = ap.parse_args()
 
@@ -82,7 +86,7 @@ def main():
         break
 
     b = qhue.Bridge(bridge_location, bridge_username)
-    history = FileHistory('philipshue.hist')
+    history = FileHistory(HOME / '.philipshue.hist')
     while True:
         try:
             cmd = prompt('> ', lexer=PygmentsLexer(Python3Lexer),
