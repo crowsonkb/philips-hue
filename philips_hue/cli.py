@@ -104,8 +104,8 @@ def main():
             time_taken = time.perf_counter() - start
             PP.pprint(out)
             print(f'Time taken: {sgr(1, 34)}{time_taken*1000:.3f} ms{sgr(0)}')
-        except (SyntaxError, qhue.QhueException) as err:
-            print(f'{sgr(1, 31)}{err.__class__.__name__}{sgr(0)}: {err}')
-            continue
         except (EOFError, KeyboardInterrupt):
             break
+        except Exception as err:
+            print(f'{sgr(1, 31)}{err.__class__.__name__}{sgr(0)}: {err}')
+            continue
