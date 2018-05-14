@@ -67,10 +67,13 @@ def exec_cmd(cmd, bridge):
         cmd = 'bridge.' + cmd
     else:
         cmd = 'bridge()'
-    if not cmd.endswith(')'):
-        cmd = cmd + '()'
     my_globals = {'bridge': bridge, 'rgb_to_xybri': rgb_to_xybri}
-    return eval(cmd, my_globals)
+    result = eval(cmd, my_globals)
+    try:
+        result = result()
+    except TypeError:
+        pass
+    return result
 
 
 def main():

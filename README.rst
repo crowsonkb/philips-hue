@@ -14,7 +14,7 @@ Installation:
 
 This will install a script under the name ``philipshue``. On first run, philips-hue will attempt to register a username with your Bridge. It will then write the bridge IP and its username to a configuration file ``$HOME/.philipshue.ini``.
 
-philips-hue is basically an `IPython <https://ipython.org>`_-inspired read-eval-print loop. It turns commands entered on the prompt into QHue calls by (a) prepending ``bridge.`` to every command, and (b) suffixing the command with ``()`` if the command is not a function call already. Consequently most of the examples in the QHue README are applicable to philips-hue.
+philips-hue is basically an `IPython <https://ipython.org>`_-inspired read-eval-print loop. It turns commands entered on the prompt into QHue calls by (a) prepending ``bridge.`` to every command, and (b) calling the result if it is callable. Consequently most of the examples in the QHue README are applicable to philips-hue.
 
 Examples:
 
