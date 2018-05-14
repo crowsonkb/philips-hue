@@ -24,4 +24,4 @@ Examples:
 
 - ``groups[0].action(bri=100, hue=10000, transitiontime=10)`` sets all the lights to a brightness of 100 and a hue of 10000. The lights fade to these values over a period of one second.
 
-- Pressing Enter to enter an empty string at the prompt returns the entire bridge datastore.
+- ``bridge`` returns the entire bridge datastore.

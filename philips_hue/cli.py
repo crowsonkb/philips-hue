@@ -63,10 +63,8 @@ def setup(config):
 
 
 def exec_cmd(cmd, bridge):
-    if cmd:
+    if not cmd.startswith('bridge'):
         cmd = 'bridge.' + cmd
-    else:
-        cmd = 'bridge()'
     my_globals = {'bridge': bridge, 'rgb_to_xybri': rgb_to_xybri}
     result = eval(cmd, my_globals)
     try:
