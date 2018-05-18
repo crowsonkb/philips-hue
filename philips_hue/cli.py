@@ -75,6 +75,7 @@ def exec_cmd(cmd, bridge):
 
 
 def main():
+    """The main function."""
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--config', default=str(Path.home() / '.philipshue.ini'),
                     help='the config file location')
@@ -92,7 +93,7 @@ def main():
             continue
         break
 
-    b = qhue.Bridge(bridge_location, bridge_username)
+    bridge = qhue.Bridge(bridge_location, bridge_username)
     history = FileHistory(Path.home() / '.philipshue.hist')
     while True:
         try:
@@ -100,12 +101,13 @@ def main():
                          style=style_from_pygments(FriendlyStyle),
                          history=history, auto_suggest=AutoSuggestFromHistory())
             start = time.perf_counter()
-            out = exec_cmd(cmd, bridge=b)
+            out = exec_cmd(cmd, bridge=bridge)
             time_taken = time.perf_counter() - start
             PP.pprint(out)
             print(f'Time taken: {sgr(1, 34)}{time_taken*1000:.3f} ms{sgr(0)}')
-        except (EOFError, KeyboardInterrupt):
+        except KeyboardInterrupt:
+            pass
+        except EOFError:
             break
         except Exception as err:
             print(f'{sgr(1, 31)}{err.__class__.__name__}{sgr(0)}: {err}')
-            continue
