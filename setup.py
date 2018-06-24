@@ -17,5 +17,5 @@ setup(name='philips-hue',
                         'Pygments >= 2.2.0',
                         'qhue >= 1.0.9'],
       entry_points={
-          'console_scripts': ['philipshue=philips_hue.cli:main'],
+          'console_scripts': ['philips-hue=philips_hue.cli:main'],
       })
