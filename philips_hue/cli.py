@@ -18,7 +18,7 @@ from pygments.lexers import Python3Lexer
 import qhue
 import requests
 
-from philips_hue.color import rgb_to_xybri
+from philips_hue.color import mired, rgb_to_xybri
 from philips_hue.friendly_mod import FriendlyStyle
 
 
@@ -65,7 +65,9 @@ def setup(config):
 def exec_cmd(cmd, bridge):
     if not cmd.startswith('bridge'):
         cmd = 'bridge.' + cmd
-    my_globals = {'bridge': bridge, 'rgb_to_xybri': rgb_to_xybri}
+    my_globals = {'bridge': bridge,
+                  'mired': mired,
+                  'rgb_to_xybri': rgb_to_xybri}
     result = eval(cmd, my_globals)
     try:
         result = result()
