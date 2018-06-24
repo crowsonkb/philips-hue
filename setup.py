@@ -13,7 +13,7 @@ setup(name='philips-hue',
       packages=['philips_hue'],
       install_requires=['colour-science >= 0.3.11',
                         'requests >= 2.18.4',
-                        'prompt-toolkit >= 1.0.15',
+                        'prompt-toolkit >= 2.0.3',
                         'Pygments >= 2.2.0',
                         'qhue >= 1.0.9'],
       entry_points={

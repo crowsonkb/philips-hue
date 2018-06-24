@@ -7,11 +7,11 @@ import pprint
 import sys
 import time
 
-from prompt_toolkit import prompt
+from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.history import FileHistory
-from prompt_toolkit.layout.lexers import PygmentsLexer
-from prompt_toolkit.styles import style_from_pygments
+from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.styles import style_from_pygments_cls
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import Python3Lexer
@@ -95,11 +95,12 @@ def main():
 
     bridge = qhue.Bridge(bridge_location, bridge_username)
     history = FileHistory(Path.home() / '.philipshue.hist')
+    session = PromptSession(history=history)
     while True:
         try:
-            cmd = prompt('>>> ', lexer=PygmentsLexer(Python3Lexer),
-                         style=style_from_pygments(FriendlyStyle),
-                         history=history, auto_suggest=AutoSuggestFromHistory())
+            cmd = session.prompt('>>> ', lexer=PygmentsLexer(Python3Lexer),
+                                 style=style_from_pygments_cls(FriendlyStyle),
+                                 auto_suggest=AutoSuggestFromHistory())
             start = time.perf_counter()
             out = exec_cmd(cmd, bridge=bridge)
             time_taken = time.perf_counter() - start
