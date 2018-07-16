@@ -2,6 +2,7 @@
 
 import argparse
 import configparser
+import os
 from pathlib import Path
 import pprint
 import sys
@@ -14,7 +15,7 @@ from prompt_toolkit.layout.processors import HighlightMatchingBracketProcessor
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import style_from_pygments_cls
 from pygments import highlight
-from pygments.formatters import Terminal256Formatter
+from pygments.formatters import TerminalFormatter, Terminal256Formatter, TerminalTrueColorFormatter
 from pygments.lexers import Python3Lexer
 import qhue
 import requests
@@ -32,11 +33,22 @@ except ImportError:
 
 class PrettyPrinter:
     def __init__(self, style='default'):
-        self.fmtr = Terminal256Formatter(style=style)
+        depth_ = os.environ.get('PROMPT_TOOLKIT_COLOR_DEPTH', 'DEPTH_8_BIT')
+        depth = int(depth_.split('_')[1])
+        if depth == 24:
+            self.fmtr = TerminalTrueColorFormatter(style=style)
+        elif depth == 8:
+            self.fmtr = Terminal256Formatter(style=style)
+        elif depth == 4:
+            self.fmtr = TerminalFormatter(style=style)
+        else:
+            self.fmtr = None
 
     def pformat(self, s):
         pp = pprint.pformat(s)
-        return highlight(pp, Python3Lexer(), self.fmtr)
+        if self.fmtr is not None:
+            return highlight(pp, Python3Lexer(), self.fmtr)
+        return pp + '\n'
 
     def pprint(self, s):
         print(self.pformat(s), end='')
