@@ -10,6 +10,7 @@ import time
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit.layout.processors import HighlightMatchingBracketProcessor
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import style_from_pygments_cls
 from pygments import highlight
@@ -96,13 +97,14 @@ def main():
         break
 
     bridge = qhue.Bridge(bridge_location, bridge_username)
-    history = FileHistory(Path.home() / '.philipshue.hist')
-    session = PromptSession(history=history)
+    session = PromptSession('>>> ', lexer=PygmentsLexer(Python3Lexer),
+                         style=style_from_pygments_cls(FriendlyStyle),
+                         auto_suggest=AutoSuggestFromHistory(),
+                         input_processors=[HighlightMatchingBracketProcessor('()[]')],
+                         history=FileHistory(Path.home() / '.philipshue.hist'))
     while True:
         try:
-            cmd = session.prompt('>>> ', lexer=PygmentsLexer(Python3Lexer),
-                                 style=style_from_pygments_cls(FriendlyStyle),
-                                 auto_suggest=AutoSuggestFromHistory())
+            cmd = session.prompt()
             start = time.perf_counter()
             out = exec_cmd(cmd, bridge=bridge)
             time_taken = time.perf_counter() - start
