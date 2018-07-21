@@ -112,7 +112,7 @@ def main():
     session = PromptSession('>>> ', lexer=PygmentsLexer(Python3Lexer),
                          style=style_from_pygments_cls(FriendlyStyle),
                          auto_suggest=AutoSuggestFromHistory(),
-                         input_processors=[HighlightMatchingBracketProcessor('()[]')],
+                         input_processors=[HighlightMatchingBracketProcessor('()[]{}')],
                          history=FileHistory(Path.home() / '.philipshue.hist'))
     while True:
         try:
