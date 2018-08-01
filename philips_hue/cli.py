@@ -112,7 +112,7 @@ def main():
         break
 
     bridge = qhue.Bridge(bridge_location, bridge_username)
-    session = PromptSession('>>> ', lexer=PygmentsLexer(Python3Lexer),
+    session = PromptSession('> ', lexer=PygmentsLexer(Python3Lexer),
                          style=style_from_pygments_cls(FriendlyStyle),
                          auto_suggest=AutoSuggestFromHistory(),
                          input_processors=[HighlightMatchingBracketProcessor('()[]{}')],
