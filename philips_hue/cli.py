@@ -129,5 +129,8 @@ def main():
             pass
         except EOFError:
             break
+        except requests.ConnectionError as err:
+            print(f'{sgr(1, 31)}{err.__class__.__name__}{sgr(0)}: {err}')
+            sys.exit(1)
         except Exception as err:
             print(f'{sgr(1, 31)}{err.__class__.__name__}{sgr(0)}: {err}')
