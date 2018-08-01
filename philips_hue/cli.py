@@ -57,7 +57,10 @@ PP = PrettyPrinter(style=FriendlyStyle)
 
 
 def sgr(*args):
-    return '\033[{}m'.format(';'.join(str(i) for i in args))
+    """Creates a Select Graphic Rendition escape sequence. See
+    https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters.
+    """
+    return '\x1b[{}m'.format(';'.join(map(str, args)))
 
 
 def setup(config):
