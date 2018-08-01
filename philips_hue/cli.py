@@ -111,14 +111,14 @@ def main():
             continue
         break
 
-    bridge = qhue.Bridge(bridge_location, bridge_username)
     print(f'Connecting to {bridge_location}...')
     try:
-        bridge()
+        bridge = qhue.Bridge(bridge_location, bridge_username)
+        num_lights = len(bridge.lights())
+        print(f'Connected to {bridge_location}. {num_lights} lights found.')
     except requests.ConnectionError as err:
         print(f'{sgr(1, 31)}{err.__class__.__name__}{sgr(0)}: {err}')
         sys.exit(1)
-    print(f'Connected to {bridge_location}.')
 
     session = PromptSession('> ', lexer=PygmentsLexer(Python3Lexer),
                          style=style_from_pygments_cls(FriendlyStyle),
