@@ -121,11 +121,12 @@ def main():
         print(f'{sgr(1, 31)}{err.__class__.__name__}{sgr(0)}: {err}')
         sys.exit(1)
 
-    session = PromptSession('> ', lexer=PygmentsLexer(Python3Lexer),
-                         style=style_from_pygments_cls(FriendlyStyle),
-                         auto_suggest=AutoSuggestFromHistory(),
-                         input_processors=[HighlightMatchingBracketProcessor('()[]{}')],
-                         history=FileHistory(Path.home() / '.philipshue.hist'))
+    session = PromptSession('> ',
+                            lexer=PygmentsLexer(Python3Lexer),
+                            style=style_from_pygments_cls(FriendlyStyle),
+                            auto_suggest=AutoSuggestFromHistory(),
+                            input_processors=[HighlightMatchingBracketProcessor('()[]{}')],
+                            history=FileHistory(Path.home() / '.philipshue.hist'))
     while True:
         try:
             cmd = session.prompt()
