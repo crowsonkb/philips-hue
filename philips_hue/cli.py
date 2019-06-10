@@ -2,6 +2,7 @@
 
 import argparse
 import configparser
+from enum import Enum
 import os
 from pathlib import Path
 import pprint
@@ -15,13 +16,16 @@ from prompt_toolkit.layout.processors import HighlightMatchingBracketProcessor
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import style_from_pygments_cls
 from pygments import highlight
-from pygments.formatters import TerminalFormatter, Terminal256Formatter, TerminalTrueColorFormatter
+from pygments.formatters import (TerminalFormatter, Terminal256Formatter,
+                                 TerminalTrueColorFormatter)
 from pygments.lexers import Python3Lexer
+from pygments.styles.monokai import MonokaiStyle
+from pygments_style_monokailight.monokailight import MonokaiLightStyle
+from pygments.styles.xcode import XcodeStyle
 import qhue
 import requests
 
 from philips_hue.color import mired, rgb_to_xybri
-from philips_hue.friendly_mod import FriendlyStyle
 
 
 try:
@@ -31,18 +35,48 @@ except ImportError:
     pass
 
 
+class BGColor(Enum):
+    """Represents our state of knowledge about the terminal background color."""
+    UNKNOWN = 0
+    DARK = -1
+    LIGHT = 1
+
+
+def get_bg_color():
+    """Returns :data:`BGColor.UNKNOWN` if the terminal background color could
+    not be determined; otherwise, :data:`BGColor.LIGHT` if the terminal has a
+    light background and :data:`BGColor.DARK` if it has a dark background."""
+    colorfgbg = os.environ.get('COLORFGBG', '')
+    try:
+        fg, bg = map(int, colorfgbg.split(';', 1))
+        if bg > fg:
+            return BGColor.LIGHT
+        elif fg > bg:
+            return BGColor.DARK
+    except Exception as err:
+        print(f'{type(err).__name__}: {err}', file=sys.stderr)
+    return BGColor.UNKNOWN
+
+
+PYGMENTS_STYLE = {BGColor.LIGHT: MonokaiLightStyle,
+                  BGColor.DARK: MonokaiStyle,
+                  BGColor.UNKNOWN: XcodeStyle}[get_bg_color()]
+
+
 class PrettyPrinter:
     def __init__(self, style='default'):
-        depth_ = os.environ.get('PROMPT_TOOLKIT_COLOR_DEPTH', 'DEPTH_8_BIT')
-        depth = int(depth_.split('_')[1])
-        if depth == 24:
-            self.fmtr = TerminalTrueColorFormatter(style=style)
-        elif depth == 8:
-            self.fmtr = Terminal256Formatter(style=style)
-        elif depth == 4:
-            self.fmtr = TerminalFormatter(style=style)
-        else:
-            self.fmtr = None
+        self.fmtr = None
+        try:
+            depth_ = os.environ.get('PROMPT_TOOLKIT_COLOR_DEPTH', 'DEPTH_8_BIT')
+            depth = int(depth_.split('_')[1])
+            if depth == 24:
+                self.fmtr = TerminalTrueColorFormatter(style=style)
+            elif depth == 8:
+                self.fmtr = Terminal256Formatter(style=style)
+            elif depth == 4:
+                self.fmtr = TerminalFormatter(style=style)
+        except Exception as err:
+            print(f'{type(err).__name__}: {err}', file=sys.stderr)
 
     def pformat(self, s):
         pp = pprint.pformat(s)
@@ -53,7 +87,7 @@ class PrettyPrinter:
     def pprint(self, s):
         print(self.pformat(s), end='')
 
-PP = PrettyPrinter(style=FriendlyStyle)
+PP = PrettyPrinter(style=PYGMENTS_STYLE)
 
 
 def sgr(*args):
@@ -123,7 +157,7 @@ def main():
 
     session = PromptSession('> ',
                             lexer=PygmentsLexer(Python3Lexer),
-                            style=style_from_pygments_cls(FriendlyStyle),
+                            style=style_from_pygments_cls(PYGMENTS_STYLE),
                             auto_suggest=AutoSuggestFromHistory(),
                             input_processors=[HighlightMatchingBracketProcessor('()[]{}')],
                             history=FileHistory(Path.home() / '.philipshue.hist'))

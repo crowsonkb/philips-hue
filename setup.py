@@ -15,6 +15,7 @@ setup(name='philips-hue',
                         'requests >= 2.18.4',
                         'prompt-toolkit >= 2.0.3',
                         'Pygments >= 2.2.0',
+                        'pygments-style-monokailight >= 0.4',
                         'qhue >= 1.0.9'],
       entry_points={
           'console_scripts': ['philips-hue=philips_hue.cli:main'],
