@@ -5,25 +5,22 @@ import configparser
 from enum import Enum
 import os
 from pathlib import Path
-import pprint
 import sys
 import time
 
+import prettyprinter
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.layout.processors import HighlightMatchingBracketProcessor
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.styles import style_from_pygments_cls
-from pygments import highlight
-from pygments.formatters import (TerminalFormatter, Terminal256Formatter,
-                                 TerminalTrueColorFormatter)
 from pygments.lexers import Python3Lexer
+from pygments.styles.friendly import FriendlyStyle
 from pygments.styles.monokai import MonokaiStyle
 from pygments_style_monokailight.monokailight import MonokaiLightStyle
-from pygments.styles.xcode import XcodeStyle
-import qhue
 import requests
+import qhue
 
 from philips_hue.color import mired, rgb_to_xybri
 
@@ -49,45 +46,24 @@ def get_bg_color():
     colorfgbg = os.environ.get('COLORFGBG', '')
     try:
         fg, bg = map(int, colorfgbg.split(';', 1))
-        if bg > fg:
-            return BGColor.LIGHT
-        elif fg > bg:
-            return BGColor.DARK
-    except Exception as err:
-        print(f'{type(err).__name__}: {err}', file=sys.stderr)
+    except ValueError:
+        return BGColor.UNKNOWN
+    if bg > fg:
+        return BGColor.LIGHT
+    if fg > bg:
+        return BGColor.DARK
     return BGColor.UNKNOWN
 
 
-PYGMENTS_STYLE = {BGColor.LIGHT: MonokaiLightStyle,
-                  BGColor.DARK: MonokaiStyle,
-                  BGColor.UNKNOWN: XcodeStyle}[get_bg_color()]
+PYGMENTS_STYLE_MAP = {BGColor.LIGHT: MonokaiLightStyle,
+                      BGColor.DARK: MonokaiStyle,
+                      BGColor.UNKNOWN: FriendlyStyle}
+PYGMENTS_STYLE = PYGMENTS_STYLE_MAP[get_bg_color()]
 
-
-class PrettyPrinter:
-    def __init__(self, style='default'):
-        self.fmtr = None
-        try:
-            depth_ = os.environ.get('PROMPT_TOOLKIT_COLOR_DEPTH', 'DEPTH_8_BIT')
-            depth = int(depth_.split('_')[1])
-            if depth == 24:
-                self.fmtr = TerminalTrueColorFormatter(style=style)
-            elif depth == 8:
-                self.fmtr = Terminal256Formatter(style=style)
-            elif depth == 4:
-                self.fmtr = TerminalFormatter(style=style)
-        except Exception as err:
-            print(f'{type(err).__name__}: {err}', file=sys.stderr)
-
-    def pformat(self, s):
-        pp = pprint.pformat(s)
-        if self.fmtr is not None:
-            return highlight(pp, Python3Lexer(), self.fmtr)
-        return pp + '\n'
-
-    def pprint(self, s):
-        print(self.pformat(s), end='')
-
-PP = PrettyPrinter(style=PYGMENTS_STYLE)
+term_width = prettyprinter.utils.get_terminal_width()
+prettyprinter.set_default_config(width=term_width - 1,
+                                 ribbon_width=term_width - 9)
+prettyprinter.set_default_style(PYGMENTS_STYLE)
 
 
 def sgr(*args):
@@ -100,7 +76,7 @@ def sgr(*args):
 def setup(config):
     resp = requests.get('https://www.meethue.com/api/nupnp')
     print('Detected Philips Hue Bridges:')
-    PP.pprint(resp.json())
+    prettyprinter.cpprint(resp.json())
     session = PromptSession()
     location = session.prompt('Enter the Bridge IP address: ')
     username = qhue.create_new_username(location)
@@ -167,7 +143,7 @@ def main():
             start = time.perf_counter()
             out = exec_cmd(cmd, bridge=bridge)
             time_taken = time.perf_counter() - start
-            PP.pprint(out)
+            prettyprinter.cpprint(out)
             print(f'Time taken: {sgr(1, 34)}{time_taken*1000:.3f} ms{sgr(0)}')
         except KeyboardInterrupt:
             pass
