@@ -74,7 +74,7 @@ def sgr(*args):
 
 
 def setup(config):
-    resp = requests.get('https://www.meethue.com/api/nupnp')
+    resp = requests.get('https://discovery.meethue.com')
     print('Detected Philips Hue Bridges:')
     prettyprinter.cpprint(resp.json())
     session = PromptSession()
